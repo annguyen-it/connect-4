@@ -5,5 +5,7 @@
     "MOUSEMOTION",
     "pygame"
   ],
-  "editor.tabSize": 4
+  "editor.tabSize": 4,
+  "formatall.search.include": "**/*.py",
+  "formatall.search.exclude": "**/{__pycache__,.vscode}/**",
 }
