@@ -2,18 +2,18 @@ import numpy as np
 
 
 class Board:
-    def __init__(self, rows, cols) -> None:
+    def __init__(self, rows: int, cols: int) -> None:
         self.rows = rows
         self.cols = cols
         self.data = np.zeros((rows, cols))
 
-    def drop_piece(self, row, col, piece) -> None:
+    def drop_piece(self, row: int, col: int, piece: int) -> None:
         self.data[row][col] = piece
 
-    def is_valid_location(self, col) -> bool:
+    def is_valid_location(self, col: int) -> bool:
         return self.data[self.rows - 1][col] == 0
 
-    def get_next_open_row(self, col) -> int:
+    def get_next_open_row(self, col: int) -> int:
         for r in range(self.rows):
             if self.data[r][col] == 0:
                 return r
@@ -21,7 +21,7 @@ class Board:
     def print(self) -> None:
         print(np.flip(self.data, 0))
 
-    def winning_move(self, piece) -> bool:
+    def winning_move(self, piece: int) -> bool:
         # Check horizontal locations for win
         for c in range(self.cols - 3):
             for r in range(self.rows):

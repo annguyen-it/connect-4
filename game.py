@@ -1,90 +1,96 @@
 import math
 import sys
+import time
 import pygame
 import pygame.event
+from const import AI_NAME, BLACK, BLUE, COLUMN_COUNT, HEIGHT, PLAY_WITH_AI, PLAYER1_COLOR, PLAYER1_NAME, PLAYER2_COLOR, PLAYER2_NAME, RADIUS, RED, ROW_COUNT, SQUARE_SIZE, WIDTH, YELLOW
+from ai import AI
 from board import Board
-from const import BLACK, BLUE, COLUMN_COUNT, HEIGHT, RADIUS, RED, ROW_COUNT, SQUARE_SIZE, WIDTH, YELLOW
-from graphics import Graphics
+from graphics import Color, Graphics
 
 
 class Game:
     def __init__(self) -> None:
         self.game_over = False
-        self.turn = 0
+        self.turn = 1
 
         self.graphics = Graphics()
         self.board = Board(ROW_COUNT, COLUMN_COUNT)
         self.draw_board()
         self.graphics.update()
+        self.player1_name = PLAYER1_NAME
+        self.player2_name = AI_NAME if PLAY_WITH_AI else PLAYER2_NAME
+        if PLAY_WITH_AI:
+            self.ai = AI()
 
     def start(self) -> None:
         while not self.game_over:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    sys.exit()
+            if PLAY_WITH_AI and self.turn == 2:
+                self.graphics.render(
+                    "AI is thinking...",
+                    PLAYER2_COLOR,
+                    (40, 10)
+                )
+                print('AI')
+                time.sleep(1)
+                col = self.ai.generateDecision()
+                self.graphics.rect(BLACK, (0, 0, WIDTH, SQUARE_SIZE))
+                self.place(2, col)
+                pygame.event.clear()
+            else:
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        sys.exit()
 
-                if event.type == pygame.MOUSEMOTION:
-                    self.graphics.rect(BLACK, (0, 0, WIDTH, SQUARE_SIZE))
-                    pos_x = event.pos[0]
-                    if self.turn == 0:
-                        self.graphics.circle(
-                            RED,
-                            (pos_x, int(SQUARE_SIZE/2)),
-                            RADIUS
-                        )
-                    else:
-                        self.graphics.circle(
-                            YELLOW,
-                            (pos_x, int(SQUARE_SIZE/2)),
-                            RADIUS
-                        )
-                self.graphics.update()
-
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    self.graphics.rect(BLACK, (0, 0, WIDTH, SQUARE_SIZE))
-                    # print(event.pos)
-                    # Ask for Player 1 Input
-                    if self.turn == 0:
+                    if event.type == pygame.MOUSEMOTION:
+                        self.graphics.rect(BLACK, (0, 0, WIDTH, SQUARE_SIZE))
                         pos_x = event.pos[0]
-                        col = int(math.floor(pos_x / SQUARE_SIZE))
+                        if self.turn == 1:
+                            self.graphics.circle(
+                                RED,
+                                (pos_x, int(SQUARE_SIZE/2)),
+                                RADIUS
+                            )
+                        elif not PLAY_WITH_AI:
+                            self.graphics.circle(
+                                YELLOW,
+                                (pos_x, int(SQUARE_SIZE/2)),
+                                RADIUS
+                            )
+                    self.graphics.update()
 
-                        if self.board.is_valid_location(col):
-                            row = self.board.get_next_open_row(col)
-                            self.board.drop_piece(row, col, 1)
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                        print(event)
+                        if PLAY_WITH_AI:
+                            if self.turn == 1:
+                                self.click(pos_x)
+                        else:
+                            self.click(pos_x)
+            if self.game_over:
+                self.graphics.wait(3000)
 
-                            if self.board.winning_move(1):
-                                self.graphics.render(
-                                    "Player 1 wins!!",
-                                    RED,
-                                    (40, 10)
-                                )
-                                self.game_over = True
+    def click(self, x: int) -> None:
+        self.graphics.rect(
+            BLACK, (0, 0, WIDTH, SQUARE_SIZE))
+        col = int(math.floor(x / SQUARE_SIZE))
+        self.place(self.turn, col)
 
-                    # # Ask for Player 2 Input
-                    else:
-                        pos_x = event.pos[0]
-                        col = int(math.floor(pos_x/SQUARE_SIZE))
+    def place(self, player: int, col: int) -> None:
+        if self.board.is_valid_location(col):
+            row = self.board.get_next_open_row(col)
+            self.board.drop_piece(row, col, player)
 
-                        if self.board.is_valid_location(col):
-                            row = self.board.get_next_open_row(col)
-                            self.board.drop_piece(row, col, 2)
+            if self.board.winning_move(player):
+                self.graphics.render(
+                    "{} wins!".format(self.getName(player)),
+                    Game.getColor(player),
+                    (40, 10)
+                )
+                self.game_over = True
+        self.board.print()
+        self.draw_board()
 
-                            if self.board.winning_move(2):
-                                self.graphics.render(
-                                    "Player 2 wins!!",
-                                    YELLOW,
-                                    (40, 10)
-                                )
-                                self.game_over = True
-
-                    self.board.print()
-                    self.draw_board()
-
-                    self.turn += 1
-                    self.turn = self.turn % 2
-
-                    if self.game_over:
-                        self.graphics.wait(3000)
+        self.turn = 1 if self.turn == 2 else 2
 
     def draw_board(self) -> None:
         for col in range(COLUMN_COUNT):
@@ -119,3 +125,11 @@ class Game:
                         RADIUS
                     )
         self.graphics.update()
+
+    def getName(self, player: int) -> str:
+        return self.player1_name if player == 1 else self.player2_name
+
+    def getColor(player: int) -> Color:
+        if player == 1:
+            return PLAYER1_COLOR
+        return PLAYER2_COLOR
