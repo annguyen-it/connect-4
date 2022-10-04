@@ -3,7 +3,7 @@ import sys
 import time
 import pygame
 import pygame.event
-from const import AI_NAME, BLACK, BLUE, COLUMN_COUNT, HEIGHT, PLAY_WITH_AI, PLAYER1_COLOR, PLAYER1_NAME, PLAYER2_COLOR, PLAYER2_NAME, RADIUS, RED, ROW_COUNT, SQUARE_SIZE, WIDTH, YELLOW
+from const import AI_LEVEL, AI_NAME, BLACK, BLUE, COLUMN_COUNT, HEIGHT, PLAY_WITH_AI, PLAYER1_COLOR, PLAYER1_NAME, PLAYER2_COLOR, PLAYER2_NAME, RADIUS, RED, ROW_COUNT, SQUARE_SIZE, WIDTH, YELLOW
 from ai import AI
 from board import Board
 from graphics import Color, Graphics
@@ -21,7 +21,7 @@ class Game:
         self.player1_name = PLAYER1_NAME
         self.player2_name = AI_NAME if PLAY_WITH_AI else PLAYER2_NAME
         if PLAY_WITH_AI:
-            self.ai = AI()
+            self.ai = AI(self.board, AI_LEVEL)
 
     def start(self) -> None:
         while not self.game_over:
@@ -33,7 +33,7 @@ class Game:
                 )
                 print('AI')
                 time.sleep(1)
-                col = self.ai.generateDecision()
+                col, _ = self.ai.generateDecision()
                 self.graphics.rect(BLACK, (0, 0, WIDTH, SQUARE_SIZE))
                 self.place(2, col)
                 pygame.event.clear()
@@ -75,10 +75,9 @@ class Game:
         col = int(math.floor(x / SQUARE_SIZE))
         self.place(self.turn, col)
 
-    def place(self, player: int, col: int) -> None:
+    def place(self, player: int, col: int) -> bool:
         if self.board.is_valid_location(col):
-            row = self.board.get_next_open_row(col)
-            self.board.drop_piece(row, col, player)
+            self.board.drop_piece(col, player)
 
             if self.board.winning_move(player):
                 self.graphics.render(
@@ -87,10 +86,13 @@ class Game:
                     (40, 10)
                 )
                 self.game_over = True
+        else:
+            return False
         self.board.print()
         self.draw_board()
 
         self.turn = 1 if self.turn == 2 else 2
+        return True
 
     def draw_board(self) -> None:
         for col in range(COLUMN_COUNT):
