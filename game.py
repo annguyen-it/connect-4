@@ -32,7 +32,6 @@ class Game:
                     (40, 10)
                 )
                 print('AI')
-                time.sleep(1)
                 col, _ = self.ai.generateDecision()
                 self.graphics.rect(BLACK, (0, 0, WIDTH, SQUARE_SIZE))
                 self.place(2, col)

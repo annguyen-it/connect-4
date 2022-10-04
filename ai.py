@@ -1,3 +1,4 @@
+import math
 from numpy import float64, ndarray
 from board import Board
 
@@ -43,7 +44,7 @@ class AI:
             new_board = board.copy()
             if not new_board.is_valid_location(col):
                 continue
-            new_board.drop_piece(col, 2)
+            new_board.drop_piece(col, 1)
             next_move = self.maximumPlayer(new_board, depth - 1)
             if min[0] == None or next_move[1] < min[1]:
                 min[0] = col
@@ -92,4 +93,10 @@ class AI:
             return -10000
         if ai_point == 4:
             return 10000
-        return ai_point
+        if human_point == ai_point == 0:
+            return 0
+        if human_point == 0:
+            return math.pow(3, ai_point - 1)
+        if ai_point == 0:
+            return -math.pow(3, human_point - 1)
+        return 0
