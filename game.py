@@ -1,6 +1,5 @@
 import math
 import sys
-import time
 import pygame
 import pygame.event
 from const import AI_LEVEL, AI_NAME, BLACK, BLUE, COLUMN_COUNT, HEIGHT, PLAY_WITH_AI, PLAYER1_COLOR, PLAYER1_NAME, PLAYER2_COLOR, PLAYER2_NAME, RADIUS, RED, ROW_COUNT, SQUARE_SIZE, WIDTH, YELLOW
