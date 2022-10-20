@@ -4,6 +4,7 @@
     "MOUSEBUTTONDOWN",
     "MOUSEMOTION",
     "ndarray",
+    "onchange",
     "pygame"
   ],
   "editor.tabSize": 4,

@@ -2,10 +2,13 @@ import math
 import sys
 import pygame
 import pygame.event
+import pygame_menu
+import pygame_menu.events
 from const import AI_LEVEL, AI_NAME, BLACK, BLUE, COLUMN_COUNT, HEIGHT, PLAY_WITH_AI, PLAYER1_COLOR, PLAYER1_NAME, PLAYER2_COLOR, PLAYER2_NAME, RADIUS, RED, ROW_COUNT, SQUARE_SIZE, WIDTH, YELLOW
 from ai import AI
 from board import Board
 from graphics import Color, Graphics
+from const import SIZE
 
 
 class Game:
@@ -19,10 +22,29 @@ class Game:
         self.graphics.update()
         self.player1_name = PLAYER1_NAME
         self.player2_name = AI_NAME if PLAY_WITH_AI else PLAYER2_NAME
-        if PLAY_WITH_AI:
-            self.ai = AI(self.board, AI_LEVEL)
+        self.set_level(2)
+
+    def set_level(self, level):
+        self.ai_level = level
 
     def start(self) -> None:
+        menu = pygame_menu.Menu(
+            'Welcome',
+            400,
+            300,
+            theme=pygame_menu.themes.THEME_BLUE
+        )
+        menu.add.button('Play', self.loop)
+        menu.add.selector(
+            'Difficulty: ',
+            [('Easy', 2), ('Hard', 4)], onchange=lambda _, level: self.set_level(level)
+        )
+        menu.add.button('Quit', pygame_menu.events.EXIT)
+        menu.mainloop(self.graphics.screen)
+
+    def loop(self) -> None:
+        if PLAY_WITH_AI:
+            self.ai = AI(self.board, self.ai_level)
         while not self.game_over:
             if PLAY_WITH_AI and self.turn == 2:
                 self.graphics.render(

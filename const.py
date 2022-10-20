@@ -19,4 +19,4 @@ PLAYER2_NAME = 'Player 2'
 
 PLAY_WITH_AI = True
 AI_NAME = 'AI'
-AI_LEVEL = 4
+AI_LEVEL = 6
